@@ -1,0 +1,13 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+dataset = pd.read_csv('C:\\Users\\Lu\\Documents\\study\\Research\\coxib_drop.csv')
+X = dataset.iloc[:,2:28].values
+y = dataset.iloc[:,28].values
+
+age = dataset['Age']
+
+plt.figure()
+plt.boxplot(age,0,'gD')
+plt.show()
