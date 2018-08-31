@@ -1,0 +1,91 @@
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import make_classification
+from sklearn.datasets import make_blobs
+from sklearn.datasets import make_gaussian_quantiles
+
+plt.figure(figsize=(8, 8))
+plt.subplots_adjust(bottom=.05, top=.9, left=.05, right=.95)
+
+#Importing the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from imblearn.combine import SMOTEENN
+import tensorflow as tf
+
+#Part 1 - Data Processing
+#Importing the dataset
+dataset = pd.read_csv('H:\\Juan Lu\\Data\\Coxib\\rofe_only.csv')
+X = dataset.iloc[:,1:35].values
+y = dataset.iloc[:,35].values
+
+#Feature Scaling
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X = sc.fit_transform(X)
+
+from sklearn.linear_model import LogisticRegression
+from imblearn.under_sampling import (ClusterCentroids, RandomUnderSampler,
+                                      TomekLinks,
+#                                     NearMiss,
+#                                     InstanceHardnessThreshold,
+#                                     CondensedNearestNeighbour,
+#                                     EditedNearestNeighbours,
+                                     RepeatedEditedNearestNeighbours,
+#                                     AllKNN,
+#                                     NeighbourhoodCleaningRule,
+                                     OneSidedSelection)
+
+#sampler = TomekLinks(random_state=42)
+sampler = RepeatedEditedNearestNeighbours(random_state=0)
+
+#X, y = sampler.fit_sample(X, y)
+
+from sklearn.decomposition import PCA
+pca = PCA(n_components = 3)
+principalComponents = pca.fit_transform(X)
+
+principalDf = pd.DataFrame(data = principalComponents
+             , columns = ['principal component 1', 'principal component 2', 'principal component 3'])
+
+
+finalDf = pd.concat([principalDf, dataset[['outcome']]], axis = 1)
+finalDf.head(5)
+finalDf = finalDf.sample(frac=0.01, replace= True)
+
+my_dpi=96
+plt.figure(figsize=(480/my_dpi, 480/my_dpi), dpi=my_dpi)
+
+from mpl_toolkits.mplot3d import Axes3D
+fig = plt.figure(figsize = (8,8))
+#ax = fig.add_subplot(1,1,1) 
+ax = fig.add_subplot(111, projection='3d') 
+ax.set_xlabel('Principal Component 1', fontsize = 15)
+ax.set_ylabel('Principal Component 2', fontsize = 15)
+ax.set_zlabel('Principal Component 2', fontsize = 15)
+
+ax.set_title('3 Component PCA', fontsize = 20)
+
+# make simple, bare axis lines through space:
+xAxisLine = ((min(finalDf['principal component 1']), max(finalDf['principal component 1'])), (0, 0), (0,0))
+ax.plot(xAxisLine[0], xAxisLine[1], xAxisLine[2],'C2', alpha=.7)
+yAxisLine = ((0, 0), (min(finalDf['principal component 2']), max(finalDf['principal component 2'])), (0,0))
+ax.plot(yAxisLine[0], yAxisLine[1], yAxisLine[2],'C2', alpha=.7)
+zAxisLine = ((0, 0), (0,0), (min(finalDf['principal component 3']), max(finalDf['principal component 3'])))
+ax.plot(zAxisLine[0], zAxisLine[1], zAxisLine[2],'C2', alpha=.7)
+
+
+targets = [0, 1]
+
+for target, color in zip(targets, colors):
+    indicesToKeep = finalDf['outcome'] == target
+    ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']
+               , finalDf.loc[indicesToKeep, 'principal component 2']
+               , finalDf.loc[indicesToKeep, 'principal component 3']
+               , s = 50
+               , alpha=.7)
+ax.legend(targets)
+ax.grid()
+    
+
