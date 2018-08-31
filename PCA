@@ -70,6 +70,7 @@ for target, color in zip(targets, colors):
                , s = 50
                , alpha=.7)
 ax.legend(targets)
+
 ax.grid()
     
 
